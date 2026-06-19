@@ -35,212 +35,118 @@
       padding: 16px 16px 40px;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
+    header { text-align: center; margin-bottom: 16px; }
     header h1 {
       font-family: 'Playfair Display', serif;
       font-size: 1.7rem;
       color: var(--gold);
       letter-spacing: 0.02em;
     }
+    .suit-row { font-size: 1rem; opacity: 0.4; margin-top: 4px; letter-spacing: 6px; }
 
-    .suit-row {
-      font-size: 1rem;
-      opacity: 0.4;
-      margin-top: 4px;
-      letter-spacing: 6px;
-    }
-
-    /* API Key */
     .api-card {
       background: var(--felt-light);
       border: 1px solid rgba(201,168,76,0.2);
       border-radius: var(--radius);
       padding: 14px 16px;
-      width: 100%;
-      max-width: 480px;
+      width: 100%; max-width: 480px;
       margin-bottom: 12px;
     }
-
     .api-card label {
       display: block;
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--gold-dim);
-      margin-bottom: 7px;
+      font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--gold-dim); margin-bottom: 7px;
     }
-
-    .api-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    .api-row { display: flex; gap: 8px; align-items: center; }
 
     input[type="password"], input[type="text"] {
       flex: 1;
       background: rgba(0,0,0,0.3);
       border: 1px solid rgba(201,168,76,0.25);
-      border-radius: 8px;
-      padding: 9px 12px;
-      color: var(--text);
-      font-family: monospace;
-      font-size: 0.82rem;
-      outline: none;
-      transition: border-color 0.2s;
+      border-radius: 8px; padding: 9px 12px;
+      color: var(--text); font-family: monospace; font-size: 0.82rem;
+      outline: none; transition: border-color 0.2s;
     }
     input:focus { border-color: var(--gold); }
 
     .toggle-btn {
-      background: none;
-      border: 1px solid rgba(201,168,76,0.25);
-      border-radius: 8px;
-      color: var(--text-dim);
-      padding: 9px 11px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      transition: all 0.2s;
-      white-space: nowrap;
+      background: none; border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 8px; color: var(--text-dim);
+      padding: 9px 11px; cursor: pointer; font-size: 0.8rem;
+      transition: all 0.2s; white-space: nowrap;
     }
     .toggle-btn:hover { border-color: var(--gold); color: var(--gold); }
 
-    /* Camera viewfinder */
     .viewfinder-wrap {
-      position: relative;
-      width: 100%;
-      max-width: 480px;
-      border-radius: var(--radius);
-      overflow: hidden;
-      background: #000;
-      border: 2px solid rgba(201,168,76,0.25);
-      margin-bottom: 12px;
-      aspect-ratio: 4/3;
+      position: relative; width: 100%; max-width: 480px;
+      border-radius: var(--radius); overflow: hidden;
+      background: #000; border: 2px solid rgba(201,168,76,0.25);
+      margin-bottom: 12px; aspect-ratio: 4/3;
     }
+    #live-video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    #live-video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* Corner brackets overlay */
     .corner {
-      position: absolute;
-      width: 22px;
-      height: 22px;
-      border-color: var(--gold);
-      border-style: solid;
-      opacity: 0.7;
+      position: absolute; width: 22px; height: 22px;
+      border-color: var(--gold); border-style: solid; opacity: 0.7;
     }
-    .corner.tl { top: 10px; left: 10px;  border-width: 2px 0 0 2px; }
-    .corner.tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; }
-    .corner.bl { bottom: 10px; left: 10px;  border-width: 0 0 2px 2px; }
-    .corner.br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+    .corner.tl { top:10px; left:10px;   border-width: 2px 0 0 2px; }
+    .corner.tr { top:10px; right:10px;  border-width: 2px 2px 0 0; }
+    .corner.bl { bottom:10px; left:10px;  border-width: 0 0 2px 2px; }
+    .corner.br { bottom:10px; right:10px; border-width: 0 2px 2px 0; }
 
-    /* No-camera fallback */
     #no-camera {
-      display: none;
-      position: absolute;
-      inset: 0;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 10px;
-      text-align: center;
-      padding: 20px;
-      color: var(--text-dim);
-      font-size: 0.85rem;
+      display: none; position: absolute; inset: 0;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 10px;
+      text-align: center; padding: 20px;
+      color: var(--text-dim); font-size: 0.85rem;
     }
     #no-camera .icon { font-size: 2.5rem; }
 
-    /* Capture + upload row */
+    .flash {
+      position: absolute; inset: 0; background: #fff;
+      opacity: 0; pointer-events: none;
+    }
+    .flash.go { animation: flashbang 0.25s ease-out forwards; }
+    @keyframes flashbang { 0% { opacity: 0.8; } 100% { opacity: 0; } }
+
     .action-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      width: 100%;
-      max-width: 480px;
-      margin-bottom: 12px;
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 10px; width: 100%; max-width: 480px; margin-bottom: 12px;
     }
 
     .btn-capture {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 15px;
-      background: var(--gold);
-      color: #1a1a1a;
-      border: none;
-      border-radius: var(--radius);
-      font-family: 'Inter', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.18s;
-      letter-spacing: 0.02em;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 15px;
+      background: var(--gold); color: #1a1a1a;
+      border: none; border-radius: var(--radius);
+      font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: all 0.18s; letter-spacing: 0.02em;
     }
     .btn-capture:hover { background: #d4b05a; transform: translateY(-1px); }
     .btn-capture:active { transform: scale(0.97); }
     .btn-capture:disabled {
-      background: rgba(201,168,76,0.3);
-      color: rgba(255,255,255,0.3);
-      cursor: not-allowed;
-      transform: none;
+      background: rgba(201,168,76,0.3); color: rgba(255,255,255,0.3);
+      cursor: not-allowed; transform: none;
     }
 
     .btn-upload-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 52px;
-      background: rgba(201,168,76,0.12);
-      border: 1px solid rgba(201,168,76,0.3);
-      border-radius: var(--radius);
-      font-size: 1.4rem;
-      cursor: pointer;
-      transition: all 0.18s;
+      display: flex; align-items: center; justify-content: center;
+      width: 52px; background: rgba(201,168,76,0.12);
+      border: 1px solid rgba(201,168,76,0.3); border-radius: var(--radius);
+      font-size: 1.4rem; cursor: pointer; transition: all 0.18s;
     }
     .btn-upload-icon:hover { background: rgba(201,168,76,0.22); }
-
     #upload-input { display: none; }
 
-    /* Flash animation on capture */
-    .flash {
-      position: absolute;
-      inset: 0;
-      background: #fff;
-      opacity: 0;
-      pointer-events: none;
-      border-radius: var(--radius);
-    }
-    .flash.go {
-      animation: flashbang 0.3s ease-out forwards;
-    }
-    @keyframes flashbang {
-      0%   { opacity: 0.85; }
-      100% { opacity: 0; }
-    }
-
-    /* Result */
-    #result-card {
-      display: none;
-      width: 100%;
-      max-width: 480px;
-    }
+    #result-card { display: none; width: 100%; max-width: 480px; }
 
     .result-inner {
-      border-radius: var(--radius);
-      padding: 20px 18px;
-      text-align: center;
-      border: 2px solid transparent;
+      border-radius: var(--radius); padding: 20px 18px;
+      text-align: center; border: 2px solid transparent;
+      transition: background 0.3s, border-color 0.3s;
     }
-
     .result-inner.hit    { background: rgba(192,57,43,0.18);  border-color: var(--red);    }
     .result-inner.stand  { background: rgba(39,174,96,0.18);  border-color: var(--green);  }
     .result-inner.double { background: rgba(41,128,185,0.18); border-color: var(--blue);   }
@@ -249,9 +155,8 @@
 
     .result-action {
       font-family: 'Playfair Display', serif;
-      font-size: 2.6rem;
-      font-weight: 700;
-      margin-bottom: 6px;
+      font-size: 2.6rem; font-weight: 700; margin-bottom: 6px;
+      min-height: 3.2rem;
     }
     .hit    .result-action { color: var(--red);    }
     .stand  .result-action { color: var(--green);  }
@@ -259,67 +164,46 @@
     .split  .result-action { color: var(--orange); }
 
     .result-hands {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 12px;
+      display: flex; gap: 8px; justify-content: center; margin-bottom: 12px;
     }
-
     .hand-chip {
-      background: rgba(0,0,0,0.3);
-      border-radius: 8px;
-      padding: 5px 12px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text-dim);
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 5px 12px; font-size: 0.78rem; font-weight: 600; color: var(--text-dim);
     }
     .hand-chip span { color: var(--text); font-size: 0.95rem; }
 
-    .result-reason {
-      font-size: 0.86rem;
-      color: var(--text-dim);
-      line-height: 1.5;
-    }
+    .result-reason { font-size: 0.86rem; color: var(--text-dim); line-height: 1.5; }
 
-    /* Loading */
+    .streaming::after {
+      content: '▋';
+      animation: blink 0.7s step-end infinite;
+      color: var(--gold);
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
     .loading {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      padding: 20px;
-      color: var(--text-dim);
-      font-size: 0.88rem;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 10px; padding: 20px; color: var(--text-dim); font-size: 0.88rem;
     }
-
     .spinner {
       width: 32px; height: 32px;
       border: 3px solid rgba(201,168,76,0.2);
-      border-top-color: var(--gold);
-      border-radius: 50%;
+      border-top-color: var(--gold); border-radius: 50%;
       animation: spin 0.75s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .error-box {
-      background: rgba(192,57,43,0.15);
-      border: 1px solid var(--red);
-      border-radius: 10px;
-      padding: 13px 15px;
-      font-size: 0.84rem;
-      color: #e88;
-      line-height: 1.5;
+      background: rgba(192,57,43,0.15); border: 1px solid var(--red);
+      border-radius: 10px; padding: 13px 15px;
+      font-size: 0.84rem; color: #e88; line-height: 1.5;
     }
 
     footer {
-      margin-top: 20px;
-      font-size: 0.7rem;
-      color: var(--text-dim);
-      text-align: center;
-      opacity: 0.5;
+      margin-top: 20px; font-size: 0.7rem;
+      color: var(--text-dim); text-align: center; opacity: 0.5;
     }
 
-    /* Hidden canvas for frame capture */
     #snap-canvas { display: none; }
   </style>
 </head>
@@ -330,7 +214,6 @@
     <div class="suit-row">♠ ♥ ♦ ♣</div>
   </header>
 
-  <!-- API Key -->
   <div class="api-card">
     <label>Anthropic API Key</label>
     <div class="api-row">
@@ -339,7 +222,6 @@
     </div>
   </div>
 
-  <!-- Live Camera -->
   <div class="viewfinder-wrap" id="viewfinder">
     <video id="live-video" autoplay playsinline muted></video>
     <div class="corner tl"></div>
@@ -347,14 +229,12 @@
     <div class="corner bl"></div>
     <div class="corner br"></div>
     <div class="flash" id="flash"></div>
-
     <div id="no-camera">
       <div class="icon">📷</div>
       <div>Camera not available.<br>Use the upload button below.</div>
     </div>
   </div>
 
-  <!-- Capture + Upload -->
   <div class="action-row">
     <button class="btn-capture" id="capture-btn" onclick="captureAndAnalyze()">
       📸 &nbsp;Snap &amp; Analyze
@@ -365,19 +245,16 @@
     </label>
   </div>
 
-  <!-- Result -->
   <div id="result-card">
     <div class="result-inner neutral" id="result-inner"></div>
   </div>
 
   <canvas id="snap-canvas"></canvas>
-
   <footer>API key stays on your device — only sent to Anthropic.</footer>
 
   <script>
-    // ── Camera setup ──────────────────────────────────────────────
-    const video = document.getElementById('live-video');
-    const noCam = document.getElementById('no-camera');
+    const video      = document.getElementById('live-video');
+    const noCam      = document.getElementById('no-camera');
     const captureBtn = document.getElementById('capture-btn');
 
     async function startCamera() {
@@ -387,8 +264,7 @@
           audio: false
         });
         video.srcObject = stream;
-      } catch (err) {
-        // Camera denied or unavailable — show fallback
+      } catch {
         video.style.display = 'none';
         noCam.style.display = 'flex';
         captureBtn.disabled = true;
@@ -397,36 +273,54 @@
     }
     startCamera();
 
-    // ── Capture frame from live video ────────────────────────────
     function captureFrame() {
       const canvas = document.getElementById('snap-canvas');
-      canvas.width  = video.videoWidth  || 640;
-      canvas.height = video.videoHeight || 480;
-      canvas.getContext('2d').drawImage(video, 0, 0);
-      // Flash effect
+      const MAX = 800;
+      let w = video.videoWidth  || 640;
+      let h = video.videoHeight || 480;
+      if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(video, 0, 0, w, h);
       const flash = document.getElementById('flash');
       flash.classList.remove('go');
-      void flash.offsetWidth; // reflow to restart animation
+      void flash.offsetWidth;
       flash.classList.add('go');
-      return canvas.toDataURL('image/jpeg', 0.92);
+      return canvas.toDataURL('image/jpeg', 0.82);
     }
 
-    // ── Upload fallback ──────────────────────────────────────────
+    function resizeDataUrl(dataUrl, callback) {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        let w = img.width, h = img.height;
+        if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+        const canvas = document.getElementById('snap-canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        callback(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.src = dataUrl;
+    }
+
     function handleUpload(input) {
       const file = input.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (e) => analyze(e.target.result);
+      reader.onload = (e) => resizeDataUrl(e.target.result, analyze);
       reader.readAsDataURL(file);
       input.value = '';
     }
 
-    // ── Main flow ─────────────────────────────────────────────────
     async function captureAndAnalyze() {
       if (!video.srcObject) return;
-      const dataUrl = captureFrame();
-      await analyze(dataUrl);
+      await analyze(captureFrame());
     }
+
+    const PROMPT = `Blackjack basic strategy expert. Look at this image.
+Find: player's cards, dealer's upcard. Apply 6-deck basic strategy (dealer stands soft 17).
+Reply ONLY valid JSON, no markdown:
+{"player_cards":["A","7"],"player_total":"soft 18","dealer_upcard":"9","action":"HIT","reason":"one short sentence"}
+action = HIT | STAND | DOUBLE | SPLIT | UNCLEAR`;
 
     async function analyze(dataUrl) {
       const apiKey = document.getElementById('api-key').value.trim();
@@ -435,27 +329,9 @@
       const base64 = dataUrl.split(',')[1];
       const mime   = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
 
-      showLoading();
+      showSkeleton();
 
-      const prompt = `You are a blackjack basic strategy expert. Analyze this blackjack table image.
-
-Identify:
-1. The player's hand (all player cards)
-2. The dealer's visible upcard
-
-Then apply standard basic strategy (assuming 6-deck, dealer stands on soft 17) to determine the optimal move.
-
-Respond ONLY in this exact JSON format with no markdown or extra text:
-{
-  "player_cards": ["A", "7"],
-  "player_total": "soft 18",
-  "dealer_upcard": "9",
-  "action": "HIT",
-  "reason": "Soft 18 vs dealer 9 — hitting gives the best expected value"
-}
-
-Action must be exactly one of: HIT, STAND, DOUBLE, SPLIT
-If you cannot clearly see the cards, set action to "UNCLEAR" and explain in reason.`;
+      let buffer = '';
 
       try {
         const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -467,13 +343,14 @@ If you cannot clearly see the cards, set action to "UNCLEAR" and explain in reas
             'anthropic-dangerous-direct-browser-access': 'true'
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-6',
-            max_tokens: 400,
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 150,
+            stream: true,
             messages: [{
               role: 'user',
               content: [
                 { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
-                { type: 'text', text: prompt }
+                { type: 'text', text: PROMPT }
               ]
             }]
           })
@@ -484,9 +361,29 @@ If you cannot clearly see the cards, set action to "UNCLEAR" and explain in reas
           throw new Error(err.error?.message || `API error ${res.status}`);
         }
 
-        const data = await res.json();
-        const raw  = data.content.map(b => b.text || '').join('');
-        const clean = raw.replace(/```json|```/g, '').trim();
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') continue;
+            try {
+              const evt = JSON.parse(data);
+              if (evt.type === 'content_block_delta' && evt.delta?.text) {
+                buffer += evt.delta.text;
+                tryRenderPartial(buffer);
+              }
+            } catch { }
+          }
+        }
+
+        const clean = buffer.replace(/```json|```/g, '').trim();
         showResult(JSON.parse(clean));
 
       } catch (err) {
@@ -494,39 +391,50 @@ If you cannot clearly see the cards, set action to "UNCLEAR" and explain in reas
       }
     }
 
-    // ── UI helpers ────────────────────────────────────────────────
-    function showLoading() {
-      const card = document.getElementById('result-card');
+    function tryRenderPartial(text) {
+      try {
+        const clean = text.replace(/```json|```/g, '').trim();
+        if (!clean.includes('"action"')) return;
+        const r = JSON.parse(clean);
+        showResult(r);
+      } catch { }
+    }
+
+    function showSkeleton() {
+      const card  = document.getElementById('result-card');
       const inner = document.getElementById('result-inner');
       card.style.display = 'block';
       inner.className = 'result-inner neutral';
-      inner.innerHTML = `<div class="loading"><div class="spinner"></div>Reading the table…</div>`;
+      inner.innerHTML = `
+        <div class="result-hands">
+          <div class="hand-chip">Your hand &nbsp;<span>—</span></div>
+          <div class="hand-chip">Dealer shows &nbsp;<span>—</span></div>
+        </div>
+        <div class="result-action streaming" style="color:var(--text-dim);font-size:1.4rem;padding-top:6px">Reading cards</div>
+        <div class="result-reason" style="margin-top:6px"></div>`;
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function showResult(r) {
-      const inner = document.getElementById('result-inner');
+      const inner  = document.getElementById('result-inner');
       const action = (r.action || 'UNCLEAR').toUpperCase();
-      const colorMap = { HIT: 'hit', STAND: 'stand', DOUBLE: 'double', SPLIT: 'split' };
-      const emojiMap = { HIT: '👊', STAND: '✋', DOUBLE: '💰', SPLIT: '✂️', UNCLEAR: '🔍' };
+      const colorMap = { HIT:'hit', STAND:'stand', DOUBLE:'double', SPLIT:'split' };
+      const emojiMap = { HIT:'👊', STAND:'✋', DOUBLE:'💰', SPLIT:'✂️', UNCLEAR:'🔍' };
       const cls   = colorMap[action] || 'neutral';
       const emoji = emojiMap[action] || '❓';
-      const playerCards = Array.isArray(r.player_cards) ? r.player_cards.join('  ') : '?';
-
+      const cards = Array.isArray(r.player_cards) ? r.player_cards.join('  ') : '?';
       inner.className = `result-inner ${cls}`;
       inner.innerHTML = `
         <div class="result-hands">
-          <div class="hand-chip">Your hand &nbsp;<span>${playerCards}</span></div>
+          <div class="hand-chip">Your hand &nbsp;<span>${cards}</span></div>
           <div class="hand-chip">Dealer shows &nbsp;<span>${r.dealer_upcard || '?'}</span></div>
         </div>
         <div class="result-action">${emoji} ${action}</div>
         <div class="result-reason">${r.reason || ''}</div>`;
-
-      // Scroll result into view
-      document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function showError(msg) {
-      const card = document.getElementById('result-card');
+      const card  = document.getElementById('result-card');
       const inner = document.getElementById('result-inner');
       card.style.display = 'block';
       inner.className = 'result-inner neutral';
