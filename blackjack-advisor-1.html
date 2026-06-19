@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blackjack Advisor</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+      --felt: #1a3a2a;
+      --felt-light: #22472f;
+      --gold: #c9a84c;
+      --gold-dim: #7a5f28;
+      --text: #f0ead8;
+      --text-dim: #8a9e8e;
+      --red: #c0392b;
+      --green: #27ae60;
+      --blue: #2980b9;
+      --orange: #e67e22;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--felt);
+      background-image: radial-gradient(ellipse at top, #1f4a35 0%, #1a3a2a 60%);
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 16px 40px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+    }
+
+    .suit-row {
+      font-size: 1rem;
+      opacity: 0.4;
+      margin-top: 4px;
+      letter-spacing: 6px;
+    }
+
+    /* API Key */
+    .api-card {
+      background: var(--felt-light);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 12px;
+    }
+
+    .api-card label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 7px;
+    }
+
+    .api-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input[type="password"], input[type="text"] {
+      flex: 1;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: monospace;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus { border-color: var(--gold); }
+
+    .toggle-btn {
+      background: none;
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 8px;
+      color: var(--text-dim);
+      padding: 9px 11px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .toggle-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* Camera viewfinder */
+    .viewfinder-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #000;
+      border: 2px solid rgba(201,168,76,0.25);
+      margin-bottom: 12px;
+      aspect-ratio: 4/3;
+    }
+
+    #live-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Corner brackets overlay */
+    .corner {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-color: var(--gold);
+      border-style: solid;
+      opacity: 0.7;
+    }
+    .corner.tl { top: 10px; left: 10px;  border-width: 2px 0 0 2px; }
+    .corner.tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; }
+    .corner.bl { bottom: 10px; left: 10px;  border-width: 0 0 2px 2px; }
+    .corner.br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+
+    /* No-camera fallback */
+    #no-camera {
+      display: none;
+      position: absolute;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+      padding: 20px;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+    #no-camera .icon { font-size: 2.5rem; }
+
+    /* Capture + upload row */
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 12px;
+    }
+
+    .btn-capture {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 15px;
+      background: var(--gold);
+      color: #1a1a1a;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s;
+      letter-spacing: 0.02em;
+    }
+    .btn-capture:hover { background: #d4b05a; transform: translateY(-1px); }
+    .btn-capture:active { transform: scale(0.97); }
+    .btn-capture:disabled {
+      background: rgba(201,168,76,0.3);
+      color: rgba(255,255,255,0.3);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-upload-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px;
+      background: rgba(201,168,76,0.12);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: var(--radius);
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .btn-upload-icon:hover { background: rgba(201,168,76,0.22); }
+
+    #upload-input { display: none; }
+
+    /* Flash animation on capture */
+    .flash {
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+      border-radius: var(--radius);
+    }
+    .flash.go {
+      animation: flashbang 0.3s ease-out forwards;
+    }
+    @keyframes flashbang {
+      0%   { opacity: 0.85; }
+      100% { opacity: 0; }
+    }
+
+    /* Result */
+    #result-card {
+      display: none;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .result-inner {
+      border-radius: var(--radius);
+      padding: 20px 18px;
+      text-align: center;
+      border: 2px solid transparent;
+    }
+
+    .result-inner.hit    { background: rgba(192,57,43,0.18);  border-color: var(--red);    }
+    .result-inner.stand  { background: rgba(39,174,96,0.18);  border-color: var(--green);  }
+    .result-inner.double { background: rgba(41,128,185,0.18); border-color: var(--blue);   }
+    .result-inner.split  { background: rgba(230,126,34,0.18); border-color: var(--orange); }
+    .result-inner.neutral{ background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); }
+
+    .result-action {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .hit    .result-action { color: var(--red);    }
+    .stand  .result-action { color: var(--green);  }
+    .double .result-action { color: var(--blue);   }
+    .split  .result-action { color: var(--orange); }
+
+    .result-hands {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .hand-chip {
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+    .hand-chip span { color: var(--text); font-size: 0.95rem; }
+
+    .result-reason {
+      font-size: 0.86rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 20px;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+    }
+
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid rgba(201,168,76,0.2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-box {
+      background: rgba(192,57,43,0.15);
+      border: 1px solid var(--red);
+      border-radius: 10px;
+      padding: 13px 15px;
+      font-size: 0.84rem;
+      color: #e88;
+      line-height: 1.5;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-align: center;
+      opacity: 0.5;
+    }
+
+    /* Hidden canvas for frame capture */
+    #snap-canvas { display: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Blackjack Advisor</h1>
+    <div class="suit-row">♠ ♥ ♦ ♣</div>
+  </header>
+
+  <!-- API Key -->
+  <div class="api-card">
+    <label>Anthropic API Key</label>
+    <div class="api-row">
+      <input type="password" id="api-key" placeholder="sk-ant-api03-…" autocomplete="off" />
+      <button class="toggle-btn" onclick="toggleKey(event)">Show</button>
+    </div>
+  </div>
+
+  <!-- Live Camera -->
+  <div class="viewfinder-wrap" id="viewfinder">
+    <video id="live-video" autoplay playsinline muted></video>
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+    <div class="flash" id="flash"></div>
+
+    <div id="no-camera">
+      <div class="icon">📷</div>
+      <div>Camera not available.<br>Use the upload button below.</div>
+    </div>
+  </div>
+
+  <!-- Capture + Upload -->
+  <div class="action-row">
+    <button class="btn-capture" id="capture-btn" onclick="captureAndAnalyze()">
+      📸 &nbsp;Snap &amp; Analyze
+    </button>
+    <label class="btn-upload-icon" title="Upload a photo instead">
+      🖼️
+      <input type="file" id="upload-input" accept="image/*" onchange="handleUpload(this)" />
+    </label>
+  </div>
+
+  <!-- Result -->
+  <div id="result-card">
+    <div class="result-inner neutral" id="result-inner"></div>
+  </div>
+
+  <canvas id="snap-canvas"></canvas>
+
+  <footer>API key stays on your device — only sent to Anthropic.</footer>
+
+  <script>
+    // ── Camera setup ──────────────────────────────────────────────
+    const video = document.getElementById('live-video');
+    const noCam = document.getElementById('no-camera');
+    const captureBtn = document.getElementById('capture-btn');
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 960 } },
+          audio: false
+        });
+        video.srcObject = stream;
+      } catch (err) {
+        // Camera denied or unavailable — show fallback
+        video.style.display = 'none';
+        noCam.style.display = 'flex';
+        captureBtn.disabled = true;
+        captureBtn.textContent = 'Camera unavailable';
+      }
+    }
+    startCamera();
+
+    // ── Capture frame from live video ────────────────────────────
+    function captureFrame() {
+      const canvas = document.getElementById('snap-canvas');
+      canvas.width  = video.videoWidth  || 640;
+      canvas.height = video.videoHeight || 480;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      // Flash effect
+      const flash = document.getElementById('flash');
+      flash.classList.remove('go');
+      void flash.offsetWidth; // reflow to restart animation
+      flash.classList.add('go');
+      return canvas.toDataURL('image/jpeg', 0.92);
+    }
+
+    // ── Upload fallback ──────────────────────────────────────────
+    function handleUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => analyze(e.target.result);
+      reader.readAsDataURL(file);
+      input.value = '';
+    }
+
+    // ── Main flow ─────────────────────────────────────────────────
+    async function captureAndAnalyze() {
+      if (!video.srcObject) return;
+      const dataUrl = captureFrame();
+      await analyze(dataUrl);
+    }
+
+    async function analyze(dataUrl) {
+      const apiKey = document.getElementById('api-key').value.trim();
+      if (!apiKey) { showError('Enter your Anthropic API key at the top first.'); return; }
+
+      const base64 = dataUrl.split(',')[1];
+      const mime   = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
+
+      showLoading();
+
+      const prompt = `You are a blackjack basic strategy expert. Analyze this blackjack table image.
+
+Identify:
+1. The player's hand (all player cards)
+2. The dealer's visible upcard
+
+Then apply standard basic strategy (assuming 6-deck, dealer stands on soft 17) to determine the optimal move.
+
+Respond ONLY in this exact JSON format with no markdown or extra text:
+{
+  "player_cards": ["A", "7"],
+  "player_total": "soft 18",
+  "dealer_upcard": "9",
+  "action": "HIT",
+  "reason": "Soft 18 vs dealer 9 — hitting gives the best expected value"
+}
+
+Action must be exactly one of: HIT, STAND, DOUBLE, SPLIT
+If you cannot clearly see the cards, set action to "UNCLEAR" and explain in reason.`;
+
+      try {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 400,
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
+                { type: 'text', text: prompt }
+              ]
+            }]
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error?.message || `API error ${res.status}`);
+        }
+
+        const data = await res.json();
+        const raw  = data.content.map(b => b.text || '').join('');
+        const clean = raw.replace(/```json|```/g, '').trim();
+        showResult(JSON.parse(clean));
+
+      } catch (err) {
+        showError(err.message || 'Something went wrong. Check your API key and try again.');
+      }
+    }
+
+    // ── UI helpers ────────────────────────────────────────────────
+    function showLoading() {
+      const card = document.getElementById('result-card');
+      const inner = document.getElementById('result-inner');
+      card.style.display = 'block';
+      inner.className = 'result-inner neutral';
+      inner.innerHTML = `<div class="loading"><div class="spinner"></div>Reading the table…</div>`;
+    }
+
+    function showResult(r) {
+      const inner = document.getElementById('result-inner');
+      const action = (r.action || 'UNCLEAR').toUpperCase();
+      const colorMap = { HIT: 'hit', STAND: 'stand', DOUBLE: 'double', SPLIT: 'split' };
+      const emojiMap = { HIT: '👊', STAND: '✋', DOUBLE: '💰', SPLIT: '✂️', UNCLEAR: '🔍' };
+      const cls   = colorMap[action] || 'neutral';
+      const emoji = emojiMap[action] || '❓';
+      const playerCards = Array.isArray(r.player_cards) ? r.player_cards.join('  ') : '?';
+
+      inner.className = `result-inner ${cls}`;
+      inner.innerHTML = `
+        <div class="result-hands">
+          <div class="hand-chip">Your hand &nbsp;<span>${playerCards}</span></div>
+          <div class="hand-chip">Dealer shows &nbsp;<span>${r.dealer_upcard || '?'}</span></div>
+        </div>
+        <div class="result-action">${emoji} ${action}</div>
+        <div class="result-reason">${r.reason || ''}</div>`;
+
+      // Scroll result into view
+      document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function showError(msg) {
+      const card = document.getElementById('result-card');
+      const inner = document.getElementById('result-inner');
+      card.style.display = 'block';
+      inner.className = 'result-inner neutral';
+      inner.innerHTML = `<div class="error-box">⚠️ ${msg}</div>`;
+    }
+
+    function toggleKey(e) {
+      const inp = document.getElementById('api-key');
+      if (inp.type === 'password') { inp.type = 'text';     e.target.textContent = 'Hide'; }
+      else                         { inp.type = 'password'; e.target.textContent = 'Show'; }
+    }
+  </script>
+</body>
+</html>
