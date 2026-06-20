@@ -6,78 +6,49 @@
   <title>Blackjack Advisor</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap');
-
     :root {
-      --felt: #1a3a2a;
-      --felt-light: #22472f;
-      --gold: #c9a84c;
-      --gold-dim: #7a5f28;
-      --text: #f0ead8;
-      --text-dim: #8a9e8e;
-      --red: #c0392b;
-      --green: #27ae60;
-      --blue: #2980b9;
-      --orange: #e67e22;
+      --felt: #1a3a2a; --felt-light: #22472f;
+      --gold: #c9a84c; --gold-dim: #7a5f28;
+      --text: #f0ead8; --text-dim: #8a9e8e;
+      --red: #c0392b; --green: #27ae60;
+      --blue: #2980b9; --orange: #e67e22;
       --radius: 14px;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background: var(--felt);
       background-image: radial-gradient(ellipse at top, #1f4a35 0%, #1a3a2a 60%);
-      font-family: 'Inter', sans-serif;
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px 16px 40px;
+      font-family: 'Inter', sans-serif; color: var(--text);
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; padding: 16px 16px 40px;
     }
-
     header { text-align: center; margin-bottom: 16px; }
-    header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.7rem;
-      color: var(--gold);
-      letter-spacing: 0.02em;
-    }
+    header h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: var(--gold); }
     .suit-row { font-size: 1rem; opacity: 0.4; margin-top: 4px; letter-spacing: 6px; }
-
     .api-card {
-      background: var(--felt-light);
-      border: 1px solid rgba(201,168,76,0.2);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      width: 100%; max-width: 480px;
-      margin-bottom: 12px;
+      background: var(--felt-light); border: 1px solid rgba(201,168,76,0.2);
+      border-radius: var(--radius); padding: 14px 16px;
+      width: 100%; max-width: 480px; margin-bottom: 12px;
     }
     .api-card label {
-      display: block;
-      font-size: 0.68rem; font-weight: 600;
+      display: block; font-size: 0.68rem; font-weight: 600;
       letter-spacing: 0.12em; text-transform: uppercase;
       color: var(--gold-dim); margin-bottom: 7px;
     }
     .api-row { display: flex; gap: 8px; align-items: center; }
-
     input[type="password"], input[type="text"] {
-      flex: 1;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(201,168,76,0.25);
-      border-radius: 8px; padding: 9px 12px;
-      color: var(--text); font-family: monospace; font-size: 0.82rem;
-      outline: none; transition: border-color 0.2s;
+      flex: 1; background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(201,168,76,0.25); border-radius: 8px;
+      padding: 9px 12px; color: var(--text); font-family: monospace;
+      font-size: 0.82rem; outline: none; transition: border-color 0.2s;
     }
     input:focus { border-color: var(--gold); }
-
     .toggle-btn {
       background: none; border: 1px solid rgba(201,168,76,0.25);
       border-radius: 8px; color: var(--text-dim);
-      padding: 9px 11px; cursor: pointer; font-size: 0.8rem;
-      transition: all 0.2s; white-space: nowrap;
+      padding: 9px 11px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s;
     }
     .toggle-btn:hover { border-color: var(--gold); color: var(--gold); }
-
     .viewfinder-wrap {
       position: relative; width: 100%; max-width: 480px;
       border-radius: var(--radius); overflow: hidden;
@@ -85,7 +56,6 @@
       margin-bottom: 12px; aspect-ratio: 4/3;
     }
     #live-video { width: 100%; height: 100%; object-fit: cover; display: block; }
-
     .corner {
       position: absolute; width: 22px; height: 22px;
       border-color: var(--gold); border-style: solid; opacity: 0.7;
@@ -94,35 +64,26 @@
     .corner.tr { top:10px; right:10px;  border-width: 2px 2px 0 0; }
     .corner.bl { bottom:10px; left:10px;  border-width: 0 0 2px 2px; }
     .corner.br { bottom:10px; right:10px; border-width: 0 2px 2px 0; }
-
     #no-camera {
       display: none; position: absolute; inset: 0;
       align-items: center; justify-content: center;
-      flex-direction: column; gap: 10px;
-      text-align: center; padding: 20px;
-      color: var(--text-dim); font-size: 0.85rem;
+      flex-direction: column; gap: 10px; text-align: center;
+      padding: 20px; color: var(--text-dim); font-size: 0.85rem;
     }
     #no-camera .icon { font-size: 2.5rem; }
-
-    .flash {
-      position: absolute; inset: 0; background: #fff;
-      opacity: 0; pointer-events: none;
-    }
+    .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
     .flash.go { animation: flashbang 0.25s ease-out forwards; }
     @keyframes flashbang { 0% { opacity: 0.8; } 100% { opacity: 0; } }
-
     .action-row {
       display: grid; grid-template-columns: 1fr auto;
       gap: 10px; width: 100%; max-width: 480px; margin-bottom: 12px;
     }
-
     .btn-capture {
       display: flex; align-items: center; justify-content: center;
-      gap: 8px; padding: 15px;
-      background: var(--gold); color: #1a1a1a;
+      gap: 8px; padding: 15px; background: var(--gold); color: #1a1a1a;
       border: none; border-radius: var(--radius);
       font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700;
-      cursor: pointer; transition: all 0.18s; letter-spacing: 0.02em;
+      cursor: pointer; transition: all 0.18s;
     }
     .btn-capture:hover { background: #d4b05a; transform: translateY(-1px); }
     .btn-capture:active { transform: scale(0.97); }
@@ -130,7 +91,6 @@
       background: rgba(201,168,76,0.3); color: rgba(255,255,255,0.3);
       cursor: not-allowed; transform: none;
     }
-
     .btn-upload-icon {
       display: flex; align-items: center; justify-content: center;
       width: 52px; background: rgba(201,168,76,0.12);
@@ -139,49 +99,31 @@
     }
     .btn-upload-icon:hover { background: rgba(201,168,76,0.22); }
     #upload-input { display: none; }
-
     #result-card { display: none; width: 100%; max-width: 480px; }
-
     .result-inner {
       border-radius: var(--radius); padding: 20px 18px;
       text-align: center; border: 2px solid transparent;
-      transition: background 0.3s, border-color 0.3s;
     }
     .result-inner.hit    { background: rgba(192,57,43,0.18);  border-color: var(--red);    }
     .result-inner.stand  { background: rgba(39,174,96,0.18);  border-color: var(--green);  }
     .result-inner.double { background: rgba(41,128,185,0.18); border-color: var(--blue);   }
     .result-inner.split  { background: rgba(230,126,34,0.18); border-color: var(--orange); }
     .result-inner.neutral{ background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); }
-
     .result-action {
       font-family: 'Playfair Display', serif;
       font-size: 2.6rem; font-weight: 700; margin-bottom: 6px;
-      min-height: 3.2rem;
     }
     .hit    .result-action { color: var(--red);    }
     .stand  .result-action { color: var(--green);  }
     .double .result-action { color: var(--blue);   }
     .split  .result-action { color: var(--orange); }
-
-    .result-hands {
-      display: flex; gap: 8px; justify-content: center; margin-bottom: 12px;
-    }
+    .result-hands { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
     .hand-chip {
       background: rgba(0,0,0,0.3); border-radius: 8px;
       padding: 5px 12px; font-size: 0.78rem; font-weight: 600; color: var(--text-dim);
     }
     .hand-chip span { color: var(--text); font-size: 0.95rem; }
-
     .result-reason { font-size: 0.86rem; color: var(--text-dim); line-height: 1.5; }
-
-    /* Streaming text cursor blink */
-    .streaming::after {
-      content: '▋';
-      animation: blink 0.7s step-end infinite;
-      color: var(--gold);
-    }
-    @keyframes blink { 50% { opacity: 0; } }
-
     .loading {
       display: flex; flex-direction: column; align-items: center;
       gap: 10px; padding: 20px; color: var(--text-dim); font-size: 0.88rem;
@@ -193,23 +135,16 @@
       animation: spin 0.75s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .error-box {
       background: rgba(192,57,43,0.15); border: 1px solid var(--red);
       border-radius: 10px; padding: 13px 15px;
       font-size: 0.84rem; color: #e88; line-height: 1.5;
     }
-
-    footer {
-      margin-top: 20px; font-size: 0.7rem;
-      color: var(--text-dim); text-align: center; opacity: 0.5;
-    }
-
+    footer { margin-top: 20px; font-size: 0.7rem; color: var(--text-dim); text-align: center; opacity: 0.5; }
     #snap-canvas { display: none; }
   </style>
 </head>
 <body>
-
   <header>
     <h1>Blackjack Advisor</h1>
     <div class="suit-row">♠ ♥ ♦ ♣</div>
@@ -223,12 +158,10 @@
     </div>
   </div>
 
-  <div class="viewfinder-wrap" id="viewfinder">
+  <div class="viewfinder-wrap">
     <video id="live-video" autoplay playsinline muted></video>
-    <div class="corner tl"></div>
-    <div class="corner tr"></div>
-    <div class="corner bl"></div>
-    <div class="corner br"></div>
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
     <div class="flash" id="flash"></div>
     <div id="no-camera">
       <div class="icon">📷</div>
@@ -241,8 +174,7 @@
       📸 &nbsp;Snap &amp; Analyze
     </button>
     <label class="btn-upload-icon" title="Upload a photo instead">
-      🖼️
-      <input type="file" id="upload-input" accept="image/*" onchange="handleUpload(this)" />
+      🖼️<input type="file" id="upload-input" accept="image/*" onchange="handleUpload(this)" />
     </label>
   </div>
 
@@ -253,279 +185,320 @@
   <canvas id="snap-canvas"></canvas>
   <footer>API key stays on your device — only sent to Anthropic.</footer>
 
-  <script>
-    const video      = document.getElementById('live-video');
-    const noCam      = document.getElementById('no-camera');
-    const captureBtn = document.getElementById('capture-btn');
+<script>
+// ═══════════════════════════════════════════════════════════
+// BASIC STRATEGY TABLE — 6 deck, dealer stands soft 17
+// Claude only reads cards. This code decides the action.
+// ═══════════════════════════════════════════════════════════
 
-    // ── Camera ────────────────────────────────────────────────────
-    async function startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 960 } },
-          audio: false
-        });
-        video.srcObject = stream;
-      } catch {
-        video.style.display = 'none';
-        noCam.style.display = 'flex';
-        captureBtn.disabled = true;
-        captureBtn.textContent = 'Camera unavailable';
+function cardValue(c) {
+  c = String(c).toUpperCase();
+  if (['J','Q','K'].includes(c)) return 10;
+  if (c === 'A') return 11;
+  return parseInt(c) || 0;
+}
+
+function calcHand(cards) {
+  let total = 0, aces = 0;
+  for (const c of cards) {
+    const v = cardValue(c);
+    if (String(c).toUpperCase() === 'A') aces++;
+    total += v;
+  }
+  while (total > 21 && aces > 0) { total -= 10; aces--; }
+  const soft = aces > 0 && total <= 21 && (total - 10) >= 1;
+  return { total, soft };
+}
+
+function dealerNum(c) {
+  c = String(c).toUpperCase();
+  if (['J','Q','K'].includes(c)) return 10;
+  if (c === 'A') return 11;
+  return parseInt(c) || 0;
+}
+
+function basicStrategy(playerCards, dealerCard) {
+  const d = dealerNum(dealerCard);
+  const n = playerCards.length;
+  const { total, soft } = calcHand(playerCards);
+
+  // ── PAIRS ──────────────────────────────────────────────
+  if (n === 2) {
+    const a = String(playerCards[0]).toUpperCase();
+    const b = String(playerCards[1]).toUpperCase();
+    const av = cardValue(a), bv = cardValue(b);
+
+    if (av === bv || (av === 10 && bv === 10)) {
+      // Normalize face cards to their rank label
+      const rank = (a === 'A') ? 'A' : String(av);
+
+      if (rank === 'A') return { action: 'SPLIT', reason: 'Always split Aces' };
+      if (rank === '8') return { action: 'SPLIT', reason: 'Always split 8s' };
+      if (rank === '10') return { action: 'STAND', reason: 'Always stand on 20' };
+
+      if (rank === '9') {
+        if ([7,10,11].includes(d)) return { action: 'STAND', reason: `9s vs ${dealerCard} — stand` };
+        return { action: 'SPLIT', reason: `9s vs ${dealerCard} — split` };
+      }
+      if (rank === '7') {
+        if (d >= 2 && d <= 7) return { action: 'SPLIT', reason: `7s vs ${dealerCard} — split` };
+        return { action: 'HIT', reason: `7s vs ${dealerCard} — hit` };
+      }
+      if (rank === '6') {
+        if (d >= 2 && d <= 6) return { action: 'SPLIT', reason: `6s vs ${dealerCard} — split` };
+        return { action: 'HIT', reason: `6s vs ${dealerCard} — hit` };
+      }
+      if (rank === '5') {
+        // Treat as hard 10
+      }
+      if (rank === '4') {
+        if (d === 5 || d === 6) return { action: 'SPLIT', reason: `4s vs ${dealerCard} — split` };
+        return { action: 'HIT', reason: `4s vs ${dealerCard} — hit` };
+      }
+      if (rank === '3' || rank === '2') {
+        if (d >= 2 && d <= 7) return { action: 'SPLIT', reason: `${rank}s vs ${dealerCard} — split` };
+        return { action: 'HIT', reason: `${rank}s vs ${dealerCard} — hit` };
       }
     }
-    startCamera();
+  }
 
-    // ── Capture + resize to 800px wide (much faster upload) ───────
-    function captureFrame() {
-      const canvas = document.getElementById('snap-canvas');
-      const MAX = 800;
-      let w = video.videoWidth  || 640;
-      let h = video.videoHeight || 480;
-      if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+  // ── SOFT TOTALS ────────────────────────────────────────
+  if (soft) {
+    if (total >= 20) return { action: 'STAND', reason: `Soft ${total} — always stand` };
+    if (total === 19) {
+      if (d === 6) return { action: 'DOUBLE', reason: 'Soft 19 vs 6 — double' };
+      return { action: 'STAND', reason: `Soft 19 vs ${dealerCard} — stand` };
+    }
+    if (total === 18) {
+      if (d >= 2 && d <= 6) return { action: 'DOUBLE', reason: `Soft 18 vs ${dealerCard} — double` };
+      if (d === 7 || d === 8) return { action: 'STAND', reason: `Soft 18 vs ${dealerCard} — stand` };
+      return { action: 'HIT', reason: `Soft 18 vs ${dealerCard} — hit` };
+    }
+    if (total === 17) {
+      if (d >= 3 && d <= 6) return { action: 'DOUBLE', reason: `Soft 17 vs ${dealerCard} — double` };
+      return { action: 'HIT', reason: `Soft 17 vs ${dealerCard} — hit` };
+    }
+    if (total === 16 || total === 15) {
+      if (d >= 4 && d <= 6) return { action: 'DOUBLE', reason: `Soft ${total} vs ${dealerCard} — double` };
+      return { action: 'HIT', reason: `Soft ${total} vs ${dealerCard} — hit` };
+    }
+    if (total === 14 || total === 13) {
+      if (d === 5 || d === 6) return { action: 'DOUBLE', reason: `Soft ${total} vs ${dealerCard} — double` };
+      return { action: 'HIT', reason: `Soft ${total} vs ${dealerCard} — hit` };
+    }
+    return { action: 'HIT', reason: `Soft ${total} vs ${dealerCard} — hit` };
+  }
 
-      const flash = document.getElementById('flash');
-      flash.classList.remove('go');
-      void flash.offsetWidth;
-      flash.classList.add('go');
+  // ── HARD TOTALS ────────────────────────────────────────
+  if (total >= 17) return { action: 'STAND', reason: `Hard ${total} — always stand` };
+  if (total >= 13 && total <= 16) {
+    if (d >= 2 && d <= 6) return { action: 'STAND', reason: `Hard ${total} vs ${dealerCard} — stand` };
+    return { action: 'HIT', reason: `Hard ${total} vs ${dealerCard} — hit` };
+  }
+  if (total === 12) {
+    if (d >= 4 && d <= 6) return { action: 'STAND', reason: `Hard 12 vs ${dealerCard} — stand` };
+    return { action: 'HIT', reason: `Hard 12 vs ${dealerCard} — hit` };
+  }
+  if (total === 11) {
+    if (d <= 10) return { action: 'DOUBLE', reason: `Hard 11 vs ${dealerCard} — double` };
+    return { action: 'HIT', reason: `Hard 11 vs Ace — hit` };
+  }
+  if (total === 10) {
+    if (d >= 2 && d <= 9) return { action: 'DOUBLE', reason: `Hard 10 vs ${dealerCard} — double` };
+    return { action: 'HIT', reason: `Hard 10 vs ${dealerCard} — hit` };
+  }
+  if (total === 9) {
+    if (d >= 3 && d <= 6) return { action: 'DOUBLE', reason: `Hard 9 vs ${dealerCard} — double` };
+    return { action: 'HIT', reason: `Hard 9 vs ${dealerCard} — hit` };
+  }
+  return { action: 'HIT', reason: `Hard ${total} — hit` };
+}
 
-      // Quality 0.82 — sharp enough for cards, small enough to be fast
-      return canvas.toDataURL('image/jpeg', 0.82);
+// ═══════════════════════════════════════════════════════════
+// CAMERA
+// ═══════════════════════════════════════════════════════════
+const video      = document.getElementById('live-video');
+const noCam      = document.getElementById('no-camera');
+const captureBtn = document.getElementById('capture-btn');
+
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 960 } },
+      audio: false
+    });
+    video.srcObject = stream;
+  } catch {
+    video.style.display = 'none';
+    noCam.style.display = 'flex';
+    captureBtn.disabled = true;
+    captureBtn.textContent = 'Camera unavailable';
+  }
+}
+startCamera();
+
+function captureFrame() {
+  const canvas = document.getElementById('snap-canvas');
+  const MAX = 800;
+  let w = video.videoWidth || 640, h = video.videoHeight || 480;
+  if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+  canvas.width = w; canvas.height = h;
+  canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+  const flash = document.getElementById('flash');
+  flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
+  return canvas.toDataURL('image/jpeg', 0.82);
+}
+
+function resizeDataUrl(dataUrl, callback) {
+  const img = new Image();
+  img.onload = () => {
+    const MAX = 800;
+    let w = img.width, h = img.height;
+    if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+    const canvas = document.getElementById('snap-canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', 0.82));
+  };
+  img.src = dataUrl;
+}
+
+function handleUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => resizeDataUrl(e.target.result, analyze);
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+async function captureAndAnalyze() {
+  if (!video.srcObject) return;
+  await analyze(captureFrame());
+}
+
+// ═══════════════════════════════════════════════════════════
+// CLAUDE — only reads cards, nothing else
+// ═══════════════════════════════════════════════════════════
+const PROMPT = `You are a playing card reader. Your ONLY job is to identify the cards in this blackjack image.
+
+Return ONLY this JSON, nothing else, no markdown:
+{"player_cards": ["10", "8"], "dealer_upcard": "A"}
+
+Rules:
+- player_cards = ALL cards belonging to the player
+- dealer_upcard = the ONE visible dealer card
+- Use exact values: "2","3","4","5","6","7","8","9","10","J","Q","K","A"
+- 10, J, Q, K are all written as their actual face value ("10", "J", "Q", "K")
+- If you cannot see the cards clearly, return: {"player_cards": [], "dealer_upcard": "?"}`;
+
+async function analyze(dataUrl) {
+  const apiKey = document.getElementById('api-key').value.trim();
+  if (!apiKey) { showError('Enter your Anthropic API key at the top first.'); return; }
+
+  const base64 = dataUrl.split(',')[1];
+  const mime   = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
+
+  showLoading();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 100,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
+            { type: 'text', text: PROMPT }
+          ]
+        }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API error ${res.status}`);
     }
 
-    // Resize an uploaded image the same way
-    function resizeDataUrl(dataUrl, callback) {
-      const img = new Image();
-      img.onload = () => {
-        const MAX = 800;
-        let w = img.width, h = img.height;
-        if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
-        const canvas = document.getElementById('snap-canvas');
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        callback(canvas.toDataURL('image/jpeg', 0.82));
-      };
-      img.src = dataUrl;
+    const data = await res.json();
+    const raw  = data.content.map(b => b.text || '').join('');
+
+    // Extract JSON
+    const start = raw.indexOf('{'), end = raw.lastIndexOf('}');
+    if (start === -1 || end === -1) throw new Error('Could not read cards. Try again.');
+    const parsed = JSON.parse(raw.slice(start, end + 1));
+
+    const playerCards = parsed.player_cards;
+    const dealerCard  = parsed.dealer_upcard;
+
+    if (!playerCards || playerCards.length === 0 || dealerCard === '?') {
+      showError('Could not see the cards clearly. Try better lighting or move closer.');
+      return;
     }
 
-    function handleUpload(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => resizeDataUrl(e.target.result, analyze);
-      reader.readAsDataURL(file);
-      input.value = '';
-    }
+    // Strategy is calculated here in code — not by AI
+    const { action, reason } = basicStrategy(playerCards, dealerCard);
+    const { total, soft } = calcHand(playerCards);
+    const totalLabel = soft ? `soft ${total}` : `hard ${total}`;
 
-    async function captureAndAnalyze() {
-      if (!video.srcObject) return;
-      await analyze(captureFrame());
-    }
+    showResult({ player_cards: playerCards, player_total: totalLabel, dealer_upcard: dealerCard, action, reason });
 
-    // ── Tight prompt — fewer tokens = faster response ─────────────
-    const PROMPT = `You are a card reading and strategy lookup tool. Follow these steps exactly.
+  } catch (err) {
+    showError(err.message || 'Something went wrong. Check your API key and try again.');
+  }
+}
 
-STEP 1 — READ THE CARDS:
-- ACE = letter "A". FOUR = four pips. Face cards J/Q/K = all worth 10.
-- Check corner index AND center pips to confirm every card.
-- Identify: player_cards (all cards), dealer_upcard (one visible card).
+// ═══════════════════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════════════════
+function showLoading() {
+  const card  = document.getElementById('result-card');
+  const inner = document.getElementById('result-inner');
+  card.style.display = 'block';
+  inner.className = 'result-inner neutral';
+  inner.innerHTML = `<div class="loading"><div class="spinner"></div>Reading cards…</div>`;
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
-STEP 2 — DETERMINE HAND TYPE AND TOTAL:
-- If player has two identical cards → check PAIRS table.
-- If player has an Ace counted as 11 → check SOFT TOTALS table.
-- Otherwise → check HARD TOTALS table.
+function showResult(r) {
+  const inner  = document.getElementById('result-inner');
+  const action = (r.action || 'UNCLEAR').toUpperCase();
+  const colorMap = { HIT:'hit', STAND:'stand', DOUBLE:'double', SPLIT:'split' };
+  const emojiMap = { HIT:'👊', STAND:'✋', DOUBLE:'💰', SPLIT:'✂️', UNCLEAR:'🔍' };
+  const cls   = colorMap[action] || 'neutral';
+  const emoji = emojiMap[action] || '❓';
+  const cards = Array.isArray(r.player_cards) ? r.player_cards.join('  ') : '?';
+  inner.className = `result-inner ${cls}`;
+  inner.innerHTML = `
+    <div class="result-hands">
+      <div class="hand-chip">Your hand &nbsp;<span>${cards} (${r.player_total})</span></div>
+      <div class="hand-chip">Dealer shows &nbsp;<span>${r.dealer_upcard}</span></div>
+    </div>
+    <div class="result-action">${emoji} ${action}</div>
+    <div class="result-reason">${r.reason}</div>`;
+}
 
-STEP 3 — LOOK UP ACTION (do not calculate, just look up):
+function showError(msg) {
+  const card  = document.getElementById('result-card');
+  const inner = document.getElementById('result-inner');
+  card.style.display = 'block';
+  inner.className = 'result-inner neutral';
+  inner.innerHTML = `<div class="error-box">⚠️ ${msg}</div>`;
+}
 
-PAIRS:
-A,A → SPLIT always
-8,8 → SPLIT always
-10,10 → STAND always
-9,9 vs 7,10,A → STAND | 9,9 vs all others → SPLIT
-7,7 vs 2-7 → SPLIT | 7,7 vs 8-A → HIT
-6,6 vs 2-6 → SPLIT | 6,6 vs 7-A → HIT
-5,5 → never split, use hard 10 row
-4,4 vs 5-6 → SPLIT | 4,4 vs all others → HIT
-3,3 vs 2-7 → SPLIT | 3,3 vs 8-A → HIT
-2,2 vs 2-7 → SPLIT | 2,2 vs 8-A → HIT
-
-SOFT TOTALS:
-Soft 20 (A,9) → STAND always
-Soft 19 (A,8) vs 6 → DOUBLE | otherwise → STAND
-Soft 18 (A,7) vs 2-6 → DOUBLE | vs 7-8 → STAND | vs 9,10,A → HIT
-Soft 17 (A,6) vs 3-6 → DOUBLE | otherwise → HIT
-Soft 16 (A,5) vs 4-6 → DOUBLE | otherwise → HIT
-Soft 15 (A,4) vs 4-6 → DOUBLE | otherwise → HIT
-Soft 14 (A,3) vs 5-6 → DOUBLE | otherwise → HIT
-Soft 13 (A,2) vs 5-6 → DOUBLE | otherwise → HIT
-
-HARD TOTALS:
-17+ → STAND always
-16 vs 2-6 → STAND | vs 7-A → HIT
-15 vs 2-6 → STAND | vs 7-A → HIT
-14 vs 2-6 → STAND | vs 7-A → HIT
-13 vs 2-6 → STAND | vs 7-A → HIT
-12 vs 4-6 → STAND | vs all others → HIT
-11 vs 2-10 → DOUBLE | vs A → HIT
-10 vs 2-9 → DOUBLE | vs 10-A → HIT
-9 vs 3-6 → DOUBLE | otherwise → HIT
-8 or less → HIT always
-
-STEP 4 — OUTPUT:
-Write ONLY this JSON with no extra text, no markdown, no explanation outside the reason field:
-{"player_cards":["2","9"],"player_total":"hard 11","dealer_upcard":"8","action":"DOUBLE","reason":"Hard 11 vs 8, dealer 2-10 means double"}
-action must be exactly: HIT | STAND | DOUBLE | SPLIT | UNCLEAR`
-
-    // ── Streaming analyze ─────────────────────────────────────────
-    async function analyze(dataUrl) {
-      const apiKey = document.getElementById('api-key').value.trim();
-      if (!apiKey) { showError('Enter your Anthropic API key at the top first.'); return; }
-
-      const base64 = dataUrl.split(',')[1];
-      const mime   = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
-
-      // Show skeleton immediately so user sees feedback right away
-      showSkeleton();
-
-      let buffer = '';
-
-      try {
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
-            'anthropic-dangerous-direct-browser-access': 'true'
-          },
-          body: JSON.stringify({
-            model: 'claude-haiku-4-5-20251001',  // Haiku: fastest + cheapest model
-            max_tokens: 300,                       // Tight limit — our JSON is small
-            stream: true,                          // Stream tokens as they arrive
-            messages: [{
-              role: 'user',
-              content: [
-                { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
-                { type: 'text', text: PROMPT }
-              ]
-            }]
-          })
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error?.message || `API error ${res.status}`);
-        }
-
-        // Read the stream chunk by chunk
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
-            if (!line.startsWith('data: ')) continue;
-            const data = line.slice(6).trim();
-            if (data === '[DONE]') continue;
-
-            try {
-              const evt = JSON.parse(data);
-              if (evt.type === 'content_block_delta' && evt.delta?.text) {
-                buffer += evt.delta.text;
-                // Try to show result as soon as we have valid JSON
-                tryRenderPartial(buffer);
-              }
-            } catch { /* incomplete JSON chunk, keep buffering */ }
-          }
-        }
-
-        // Final parse on complete buffer — only if streaming didn't already show a result
-        const result = extractJSON(buffer);
-        if (result) showResult(result);
-        // If extractJSON fails, the streaming result is already visible — don't overwrite it
-
-      } catch (err) {
-        // Only show error if we never got a valid result from streaming
-        const inner = document.getElementById('result-inner');
-        if (!inner || inner.className.includes('neutral')) {
-          showError(err.message || 'Something went wrong. Check your API key and try again.');
-        }
-      }
-    }
-
-    // Robustly pull the first {...} block out of any text
-    function extractJSON(text) {
-      const start = text.indexOf('{');
-      const end   = text.lastIndexOf('}');
-      if (start === -1 || end === -1) return null;
-      try {
-        return JSON.parse(text.slice(start, end + 1));
-      } catch {
-        return null;
-      }
-    }
-
-    // Try to render as soon as action field arrives in the stream
-    function tryRenderPartial(text) {
-      if (!text.includes('"action"')) return;
-      const result = extractJSON(text);
-      if (result) showResult(result);
-    }
-
-    // ── UI ────────────────────────────────────────────────────────
-    function showSkeleton() {
-      const card  = document.getElementById('result-card');
-      const inner = document.getElementById('result-inner');
-      card.style.display = 'block';
-      inner.className = 'result-inner neutral';
-      inner.innerHTML = `
-        <div class="result-hands">
-          <div class="hand-chip">Your hand &nbsp;<span>—</span></div>
-          <div class="hand-chip">Dealer shows &nbsp;<span>—</span></div>
-        </div>
-        <div class="result-action streaming" style="color:var(--text-dim);font-size:1.4rem;padding-top:6px">Reading cards</div>
-        <div class="result-reason" style="margin-top:6px"></div>`;
-      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    function showResult(r) {
-      const inner  = document.getElementById('result-inner');
-      const action = (r.action || 'UNCLEAR').toUpperCase();
-      const colorMap = { HIT:'hit', STAND:'stand', DOUBLE:'double', SPLIT:'split' };
-      const emojiMap = { HIT:'👊', STAND:'✋', DOUBLE:'💰', SPLIT:'✂️', UNCLEAR:'🔍' };
-      const cls   = colorMap[action] || 'neutral';
-      const emoji = emojiMap[action] || '❓';
-      const cards = Array.isArray(r.player_cards) ? r.player_cards.join('  ') : '?';
-
-      inner.className = `result-inner ${cls}`;
-      inner.innerHTML = `
-        <div class="result-hands">
-          <div class="hand-chip">Your hand &nbsp;<span>${cards}</span></div>
-          <div class="hand-chip">Dealer shows &nbsp;<span>${r.dealer_upcard || '?'}</span></div>
-        </div>
-        <div class="result-action">${emoji} ${action}</div>
-        <div class="result-reason">${r.reason || ''}</div>`;
-    }
-
-    function showError(msg) {
-      const card  = document.getElementById('result-card');
-      const inner = document.getElementById('result-inner');
-      card.style.display = 'block';
-      inner.className = 'result-inner neutral';
-      inner.innerHTML = `<div class="error-box">⚠️ ${msg}</div>`;
-    }
-
-    function toggleKey(e) {
-      const inp = document.getElementById('api-key');
-      if (inp.type === 'password') { inp.type = 'text';     e.target.textContent = 'Hide'; }
-      else                         { inp.type = 'password'; e.target.textContent = 'Show'; }
-    }
-  </script>
+function toggleKey(e) {
+  const inp = document.getElementById('api-key');
+  if (inp.type === 'password') { inp.type = 'text'; e.target.textContent = 'Hide'; }
+  else { inp.type = 'password'; e.target.textContent = 'Show'; }
+}
+</script>
 </body>
 </html>
