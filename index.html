@@ -380,17 +380,22 @@ async function captureAndAnalyze() {
 // ═══════════════════════════════════════════════════════════
 // CLAUDE — only reads cards, nothing else
 // ═══════════════════════════════════════════════════════════
-const PROMPT = `You are a playing card reader. Your ONLY job is to identify the cards in this blackjack image.
+const PROMPT = `You are a playing card reader. Look at this blackjack image carefully.
 
-Return ONLY this JSON, nothing else, no markdown:
+STRICT RULES — read these before responding:
+1. ONLY report cards you can clearly and confidently see. If a card is blurry, partially hidden, or you are not 100% sure, do NOT include it.
+2. NEVER guess or infer a card. If in doubt, leave it out.
+3. COUNT the physical cards carefully. Do not add cards that aren't visibly there.
+4. player_cards = only the player's cards. dealer_upcard = only the ONE visible dealer card.
+5. Valid values only: "2" "3" "4" "5" "6" "7" "8" "9" "10" "J" "Q" "K" "A"
+6. An ACE is the letter A. A FOUR has 4 pips. Do not confuse them.
+7. J, Q, K are face cards — write them as "J", "Q", "K", never as "10".
+
+Return ONLY this JSON, no markdown, no extra text:
 {"player_cards": ["10", "8"], "dealer_upcard": "A"}
 
-Rules:
-- player_cards = ALL cards belonging to the player
-- dealer_upcard = the ONE visible dealer card
-- Use exact values: "2","3","4","5","6","7","8","9","10","J","Q","K","A"
-- 10, J, Q, K are all written as their actual face value ("10", "J", "Q", "K")
-- If you cannot see the cards clearly, return: {"player_cards": [], "dealer_upcard": "?"}`;
+If you cannot confidently identify the cards, return:
+{"player_cards": [], "dealer_upcard": "?"}`;
 
 async function analyze(dataUrl) {
   const apiKey = document.getElementById('api-key').value.trim();
