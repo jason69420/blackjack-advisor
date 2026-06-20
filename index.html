@@ -174,6 +174,7 @@
 
     .result-reason { font-size: 0.86rem; color: var(--text-dim); line-height: 1.5; }
 
+    /* Streaming text cursor blink */
     .streaming::after {
       content: '▋';
       animation: blink 0.7s step-end infinite;
@@ -257,6 +258,7 @@
     const noCam      = document.getElementById('no-camera');
     const captureBtn = document.getElementById('capture-btn');
 
+    // ── Camera ────────────────────────────────────────────────────
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -273,6 +275,7 @@
     }
     startCamera();
 
+    // ── Capture + resize to 800px wide (much faster upload) ───────
     function captureFrame() {
       const canvas = document.getElementById('snap-canvas');
       const MAX = 800;
@@ -281,13 +284,17 @@
       if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+
       const flash = document.getElementById('flash');
       flash.classList.remove('go');
       void flash.offsetWidth;
       flash.classList.add('go');
+
+      // Quality 0.82 — sharp enough for cards, small enough to be fast
       return canvas.toDataURL('image/jpeg', 0.82);
     }
 
+    // Resize an uploaded image the same way
     function resizeDataUrl(dataUrl, callback) {
       const img = new Image();
       img.onload = () => {
@@ -316,12 +323,25 @@
       await analyze(captureFrame());
     }
 
-    const PROMPT = `Blackjack basic strategy expert. Look at this image.
+    // ── Tight prompt — fewer tokens = faster response ─────────────
+    const PROMPT = `You are a blackjack basic strategy expert and a careful card reader.
+
+Look at this image and identify the playing cards.
+
+CRITICAL - avoid these common mistakes:
+- An ACE has a large single "A" symbol. It is NOT a 4. Aces are very common in card games.
+- A FOUR has two pips on top and two on the bottom (4 total). It is NOT an A.
+- A QUEEN shows "Q", a KING shows "K", a JACK shows "J" — never confuse these with numbers.
+- Look at BOTH the corner index AND the center pips to confirm each card.
+- If unsure between two cards, pick the one that makes more strategic sense in context.
+
 Find: player's cards, dealer's upcard. Apply 6-deck basic strategy (dealer stands soft 17).
+
 Reply ONLY valid JSON, no markdown:
 {"player_cards":["A","7"],"player_total":"soft 18","dealer_upcard":"9","action":"HIT","reason":"one short sentence"}
 action = HIT | STAND | DOUBLE | SPLIT | UNCLEAR`;
 
+    // ── Streaming analyze ─────────────────────────────────────────
     async function analyze(dataUrl) {
       const apiKey = document.getElementById('api-key').value.trim();
       if (!apiKey) { showError('Enter your Anthropic API key at the top first.'); return; }
@@ -329,6 +349,7 @@ action = HIT | STAND | DOUBLE | SPLIT | UNCLEAR`;
       const base64 = dataUrl.split(',')[1];
       const mime   = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
 
+      // Show skeleton immediately so user sees feedback right away
       showSkeleton();
 
       let buffer = '';
@@ -343,9 +364,9 @@ action = HIT | STAND | DOUBLE | SPLIT | UNCLEAR`;
             'anthropic-dangerous-direct-browser-access': 'true'
           },
           body: JSON.stringify({
-            model: 'claude-haiku-4-5-20251001',
-            max_tokens: 150,
-            stream: true,
+            model: 'claude-haiku-4-5-20251001',  // Haiku: fastest + cheapest model
+            max_tokens: 150,                       // Tight limit — our JSON is small
+            stream: true,                          // Stream tokens as they arrive
             messages: [{
               role: 'user',
               content: [
@@ -361,28 +382,34 @@ action = HIT | STAND | DOUBLE | SPLIT | UNCLEAR`;
           throw new Error(err.error?.message || `API error ${res.status}`);
         }
 
+        // Read the stream chunk by chunk
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
+
           const chunk = decoder.decode(value, { stream: true });
           const lines = chunk.split('\n');
+
           for (const line of lines) {
             if (!line.startsWith('data: ')) continue;
             const data = line.slice(6).trim();
             if (data === '[DONE]') continue;
+
             try {
               const evt = JSON.parse(data);
               if (evt.type === 'content_block_delta' && evt.delta?.text) {
                 buffer += evt.delta.text;
+                // Try to show result as soon as we have valid JSON
                 tryRenderPartial(buffer);
               }
-            } catch { }
+            } catch { /* incomplete JSON chunk, keep buffering */ }
           }
         }
 
+        // Final parse on complete buffer
         const clean = buffer.replace(/```json|```/g, '').trim();
         showResult(JSON.parse(clean));
 
@@ -391,15 +418,19 @@ action = HIT | STAND | DOUBLE | SPLIT | UNCLEAR`;
       }
     }
 
+    // Try to parse and render as soon as action field arrives in the stream
     function tryRenderPartial(text) {
       try {
         const clean = text.replace(/```json|```/g, '').trim();
+        // Only render if we at least have the action
         if (!clean.includes('"action"')) return;
+        // Attempt full parse
         const r = JSON.parse(clean);
         showResult(r);
-      } catch { }
+      } catch { /* not valid JSON yet — keep streaming */ }
     }
 
+    // ── UI ────────────────────────────────────────────────────────
     function showSkeleton() {
       const card  = document.getElementById('result-card');
       const inner = document.getElementById('result-inner');
@@ -423,6 +454,7 @@ action = HIT | STAND | DOUBLE | SPLIT | UNCLEAR`;
       const cls   = colorMap[action] || 'neutral';
       const emoji = emojiMap[action] || '❓';
       const cards = Array.isArray(r.player_cards) ? r.player_cards.join('  ') : '?';
+
       inner.className = `result-inner ${cls}`;
       inner.innerHTML = `
         <div class="result-hands">
