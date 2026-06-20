@@ -75,9 +75,17 @@
     .flash.go { animation: flashbang 0.25s ease-out forwards; }
     @keyframes flashbang { 0% { opacity: 0.8; } 100% { opacity: 0; } }
     .action-row {
-      display: grid; grid-template-columns: 1fr auto;
-      gap: 10px; width: 100%; max-width: 480px; margin-bottom: 12px;
+      display: grid; grid-template-columns: 1fr auto auto;
+      gap: 10px; width: 100%; max-width: 480px; margin-bottom: 6px;
     }
+    .btn-auto {
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 14px; background: rgba(39,174,96,0.15);
+      border: 1px solid rgba(39,174,96,0.4); border-radius: var(--radius);
+      font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600;
+      color: var(--green); cursor: pointer; transition: all 0.18s; white-space: nowrap;
+    }
+    .btn-auto:hover { background: rgba(39,174,96,0.25); }
     .btn-capture {
       display: flex; align-items: center; justify-content: center;
       gap: 8px; padding: 15px; background: var(--gold); color: #1a1a1a;
@@ -173,10 +181,14 @@
     <button class="btn-capture" id="capture-btn" onclick="captureAndAnalyze()">
       📸 &nbsp;Snap &amp; Analyze
     </button>
+    <button class="btn-auto" id="auto-toggle" onclick="setAutoMode(!autoEnabled)">
+      🟢 Auto
+    </button>
     <label class="btn-upload-icon" title="Upload a photo instead">
       🖼️<input type="file" id="upload-input" accept="image/*" onchange="handleUpload(this)" />
     </label>
   </div>
+  <div id="auto-status" style="display:none; font-size:0.85rem; margin-bottom:10px; text-align:center;"></div>
 
   <div id="result-card">
     <div class="result-inner neutral" id="result-inner"></div>
@@ -315,11 +327,106 @@ function basicStrategy(playerCards, dealerCard) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// CAMERA
+// CAMERA + AUTO-DETECT
 // ═══════════════════════════════════════════════════════════
 const video      = document.getElementById('live-video');
 const noCam      = document.getElementById('no-camera');
 const captureBtn = document.getElementById('capture-btn');
+
+// Motion detection state
+let prevPixels      = null;
+let stillFrames     = 0;
+let autoEnabled     = false;
+let cooldown        = false;
+let motionCanvas    = document.createElement('canvas');
+let motionCtx       = motionCanvas.getContext('2d');
+const MOTION_W      = 80;   // tiny downscaled size for fast comparison
+const MOTION_H      = 60;
+const STILL_NEEDED  = 5;    // frames that must be still before triggering (~1s at 200ms)
+const DIFF_TRIGGER  = 15;   // pixel diff threshold to count as motion
+const COOLDOWN_MS   = 5000; // 5 seconds after analysis before watching again
+
+motionCanvas.width  = MOTION_W;
+motionCanvas.height = MOTION_H;
+
+function getPixelDiff(prev, curr) {
+  let diff = 0;
+  for (let i = 0; i < prev.length; i += 4) {
+    diff += Math.abs(prev[i] - curr[i]);         // R
+    diff += Math.abs(prev[i+1] - curr[i+1]);     // G
+    diff += Math.abs(prev[i+2] - curr[i+2]);     // B
+  }
+  return diff / (MOTION_W * MOTION_H);
+}
+
+function motionTick() {
+  if (!autoEnabled || cooldown || !video.srcObject) return;
+
+  motionCtx.drawImage(video, 0, 0, MOTION_W, MOTION_H);
+  const currData = motionCtx.getImageData(0, 0, MOTION_W, MOTION_H).data;
+
+  if (prevPixels) {
+    const diff = getPixelDiff(prevPixels, currData);
+    if (diff < DIFF_TRIGGER) {
+      stillFrames++;
+      if (stillFrames >= STILL_NEEDED) {
+        // Cards have been still long enough — analyze!
+        stillFrames = 0;
+        prevPixels  = null;
+        triggerAuto();
+      }
+    } else {
+      stillFrames = 0; // motion detected, reset counter
+    }
+  }
+
+  prevPixels = currData;
+}
+
+function triggerAuto() {
+  cooldown = true;
+  updateAutoStatus('analyzing');
+  const dataUrl = captureFrame();
+  analyze(dataUrl).then(() => {
+    setTimeout(() => {
+      cooldown = false;
+      stillFrames = 0;
+      prevPixels  = null;
+      updateAutoStatus('watching');
+    }, COOLDOWN_MS);
+  });
+}
+
+let motionInterval = null;
+
+function setAutoMode(on) {
+  autoEnabled = on;
+  stillFrames = 0;
+  prevPixels  = null;
+  cooldown    = false;
+  captureBtn.style.display = on ? 'none' : 'flex';
+  document.getElementById('auto-toggle').textContent = on ? '🔴 Stop Auto' : '🟢 Auto';
+
+  if (on) {
+    motionInterval = setInterval(motionTick, 200);
+    updateAutoStatus('watching');
+  } else {
+    clearInterval(motionInterval);
+    document.getElementById('auto-status').style.display = 'none';
+  }
+}
+
+function updateAutoStatus(state) {
+  const el = document.getElementById('auto-status');
+  el.style.display = 'block';
+  if (state === 'watching') {
+    el.textContent = '👁 Watching for cards…';
+    el.style.color = 'var(--gold)';
+  } else if (state === 'analyzing') {
+    el.textContent = '⚡ Cards detected — analyzing…';
+    el.style.color = 'var(--green)';
+  }
+}
 
 async function startCamera() {
   try {
