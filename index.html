@@ -441,24 +441,32 @@ action = HIT | STAND | DOUBLE | SPLIT | UNCLEAR`;
         }
 
         // Final parse on complete buffer
-        const clean = buffer.replace(/```json|```/g, '').trim();
-        showResult(JSON.parse(clean));
+        const result = extractJSON(buffer);
+        if (result) showResult(result);
+        else throw new Error('Could not read a valid response. Try again.');
 
       } catch (err) {
         showError(err.message || 'Something went wrong. Check your API key and try again.');
       }
     }
 
-    // Try to parse and render as soon as action field arrives in the stream
-    function tryRenderPartial(text) {
+    // Robustly pull the first {...} block out of any text
+    function extractJSON(text) {
+      const start = text.indexOf('{');
+      const end   = text.lastIndexOf('}');
+      if (start === -1 || end === -1) return null;
       try {
-        const clean = text.replace(/```json|```/g, '').trim();
-        // Only render if we at least have the action
-        if (!clean.includes('"action"')) return;
-        // Attempt full parse
-        const r = JSON.parse(clean);
-        showResult(r);
-      } catch { /* not valid JSON yet — keep streaming */ }
+        return JSON.parse(text.slice(start, end + 1));
+      } catch {
+        return null;
+      }
+    }
+
+    // Try to render as soon as action field arrives in the stream
+    function tryRenderPartial(text) {
+      if (!text.includes('"action"')) return;
+      const result = extractJSON(text);
+      if (result) showResult(result);
     }
 
     // ── UI ────────────────────────────────────────────────────────
