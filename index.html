@@ -324,53 +324,58 @@
     }
 
     // ── Tight prompt — fewer tokens = faster response ─────────────
-    const PROMPT = `You are a card reader and blackjack strategy lookup tool.
+    const PROMPT = `You are a card reading and strategy lookup tool. Follow these steps exactly.
 
-STEP 1 — READ THE CARDS CAREFULLY:
-- ACE = large letter "A". NOT a 4.
-- FOUR = four pips arranged in a square. NOT an A.
-- Face cards: J=Jack, Q=Queen, K=King (all worth 10).
-- Check BOTH the corner index AND center pips to confirm each card.
+STEP 1 — READ THE CARDS:
+- ACE = letter "A". FOUR = four pips. Face cards J/Q/K = all worth 10.
+- Check corner index AND center pips to confirm every card.
+- Identify: player_cards (all cards), dealer_upcard (one visible card).
 
-STEP 2 — LOOK UP THE EXACT ACTION using this complete basic strategy table (6 decks, dealer stands soft 17):
+STEP 2 — DETERMINE HAND TYPE AND TOTAL:
+- If player has two identical cards → check PAIRS table.
+- If player has an Ace counted as 11 → check SOFT TOTALS table.
+- Otherwise → check HARD TOTALS table.
 
-PAIRS (always check splits first if player has two of the same card):
-2,2 vs 2-7: SPLIT | 2,2 vs 8-A: HIT
-3,3 vs 2-7: SPLIT | 3,3 vs 8-A: HIT
-4,4 vs 5-6: SPLIT | 4,4 vs others: HIT
-5,5: never split, treat as hard 10
-6,6 vs 2-6: SPLIT | 6,6 vs 7-A: HIT
-7,7 vs 2-7: SPLIT | 7,7 vs 8-A: HIT
-8,8: always SPLIT
-9,9 vs 2-6: SPLIT | 9,9 vs 7: STAND | 9,9 vs 8-9: SPLIT | 9,9 vs 10-A: STAND
-10,10: always STAND
-A,A: always SPLIT
+STEP 3 — LOOK UP ACTION (do not calculate, just look up):
 
-SOFT TOTALS (hand contains an Ace counted as 11):
-Soft 13 (A,2) vs 5-6: DOUBLE | otherwise: HIT
-Soft 14 (A,3) vs 5-6: DOUBLE | otherwise: HIT
-Soft 15 (A,4) vs 4-6: DOUBLE | otherwise: HIT
-Soft 16 (A,5) vs 4-6: DOUBLE | otherwise: HIT
-Soft 17 (A,6) vs 3-6: DOUBLE | otherwise: HIT
-Soft 18 (A,7) vs 2-6: DOUBLE | vs 7-8: STAND | vs 9-10-A: HIT
-Soft 19 (A,8) vs 6: DOUBLE | otherwise: STAND
-Soft 20 (A,9): always STAND
+PAIRS:
+A,A → SPLIT always
+8,8 → SPLIT always
+10,10 → STAND always
+9,9 vs 7,10,A → STAND | 9,9 vs all others → SPLIT
+7,7 vs 2-7 → SPLIT | 7,7 vs 8-A → HIT
+6,6 vs 2-6 → SPLIT | 6,6 vs 7-A → HIT
+5,5 → never split, use hard 10 row
+4,4 vs 5-6 → SPLIT | 4,4 vs all others → HIT
+3,3 vs 2-7 → SPLIT | 3,3 vs 8-A → HIT
+2,2 vs 2-7 → SPLIT | 2,2 vs 8-A → HIT
+
+SOFT TOTALS:
+Soft 20 (A,9) → STAND always
+Soft 19 (A,8) vs 6 → DOUBLE | otherwise → STAND
+Soft 18 (A,7) vs 2-6 → DOUBLE | vs 7-8 → STAND | vs 9,10,A → HIT
+Soft 17 (A,6) vs 3-6 → DOUBLE | otherwise → HIT
+Soft 16 (A,5) vs 4-6 → DOUBLE | otherwise → HIT
+Soft 15 (A,4) vs 4-6 → DOUBLE | otherwise → HIT
+Soft 14 (A,3) vs 5-6 → DOUBLE | otherwise → HIT
+Soft 13 (A,2) vs 5-6 → DOUBLE | otherwise → HIT
 
 HARD TOTALS:
-Hard 8 or less: always HIT
-Hard 9 vs 3-6: DOUBLE | otherwise: HIT
-Hard 10 vs 2-9: DOUBLE | vs 10-A: HIT
-Hard 11 vs 2-10: DOUBLE | vs A: HIT
-Hard 12 vs 4-6: STAND | otherwise: HIT
-Hard 13 vs 2-6: STAND | otherwise: HIT
-Hard 14 vs 2-6: STAND | otherwise: HIT
-Hard 15 vs 2-6: STAND | otherwise: HIT
-Hard 16 vs 2-6: STAND | otherwise: HIT
-Hard 17 or more: always STAND
+17+ → STAND always
+16 vs 2-6 → STAND | vs 7-A → HIT
+15 vs 2-6 → STAND | vs 7-A → HIT
+14 vs 2-6 → STAND | vs 7-A → HIT
+13 vs 2-6 → STAND | vs 7-A → HIT
+12 vs 4-6 → STAND | vs all others → HIT
+11 vs 2-10 → DOUBLE | vs A → HIT
+10 vs 2-9 → DOUBLE | vs 10-A → HIT
+9 vs 3-6 → DOUBLE | otherwise → HIT
+8 or less → HIT always
 
-STEP 3 — Reply ONLY valid JSON, no markdown:
-{"player_cards":["A","7"],"player_total":"soft 18","dealer_upcard":"6","action":"DOUBLE","reason":"Soft 18 vs dealer 6 — always double per basic strategy"}
-action = HIT | STAND | DOUBLE | SPLIT | UNCLEAR`;
+STEP 4 — OUTPUT:
+Write ONLY this JSON with no extra text, no markdown, no explanation outside the reason field:
+{"player_cards":["2","9"],"player_total":"hard 11","dealer_upcard":"8","action":"DOUBLE","reason":"Hard 11 vs 8, dealer 2-10 means double"}
+action must be exactly: HIT | STAND | DOUBLE | SPLIT | UNCLEAR`
 
     // ── Streaming analyze ─────────────────────────────────────────
     async function analyze(dataUrl) {
