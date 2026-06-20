@@ -440,13 +440,17 @@ action = HIT | STAND | DOUBLE | SPLIT | UNCLEAR`;
           }
         }
 
-        // Final parse on complete buffer
+        // Final parse on complete buffer — only if streaming didn't already show a result
         const result = extractJSON(buffer);
         if (result) showResult(result);
-        else throw new Error('Could not read a valid response. Try again.');
+        // If extractJSON fails, the streaming result is already visible — don't overwrite it
 
       } catch (err) {
-        showError(err.message || 'Something went wrong. Check your API key and try again.');
+        // Only show error if we never got a valid result from streaming
+        const inner = document.getElementById('result-inner');
+        if (!inner || inner.className.includes('neutral')) {
+          showError(err.message || 'Something went wrong. Check your API key and try again.');
+        }
       }
     }
 
