@@ -431,9 +431,30 @@ function updateAutoStatus(state) {
 async function startCamera() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 960 } },
+      video: {
+        facingMode: 'environment',
+        width:  { ideal: 1920 },
+        height: { ideal: 1080 }
+      },
       audio: false
     });
+
+    // Enable continuous autofocus if the device supports it
+    const track = stream.getVideoTracks()[0];
+    const capabilities = track.getCapabilities();
+    const constraints = {};
+    if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+      constraints.focusMode = 'continuous';
+    }
+    if (capabilities.exposureMode && capabilities.exposureMode.includes('continuous')) {
+      constraints.exposureMode = 'continuous';
+    }
+    if (capabilities.whiteBalanceMode && capabilities.whiteBalanceMode.includes('continuous')) {
+      constraints.whiteBalanceMode = 'continuous';
+    }
+    if (Object.keys(constraints).length > 0) {
+      await track.applyConstraints({ advanced: [constraints] });
+    }
     video.srcObject = stream;
   } catch {
     video.style.display = 'none';
