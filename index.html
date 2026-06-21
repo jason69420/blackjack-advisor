@@ -540,17 +540,21 @@ async function captureAndAnalyze() {
 // ═══════════════════════════════════════════════════════════
 const PROMPT = `You are a playing card reader. Look at this blackjack image carefully.
 
-STRICT RULES — read these before responding:
-1. ONLY report cards you can clearly and confidently see. If a card is blurry, partially hidden, or you are not 100% sure, do NOT include it.
-2. NEVER guess or infer a card. If in doubt, leave it out.
-3. COUNT the physical cards carefully. Do not add cards that aren't visibly there.
-4. player_cards = only the player's cards. dealer_upcard = only the ONE visible dealer card.
-5. Valid values only: "2" "3" "4" "5" "6" "7" "8" "9" "10" "J" "Q" "K" "A"
-6. An ACE is the letter A. A FOUR has 4 pips. Do not confuse them.
-7. J, Q, K are face cards — write them as "J", "Q", "K", never as "10".
+LAYOUT — this is always a top-down view of a digital blackjack game on a phone screen:
+- The DEALER'S card is at the TOP of the image. There is only ONE visible dealer card.
+- The PLAYER'S cards are at the BOTTOM of the image. There may be 2 or more.
+- If a card shows only its back (pattern, no number/letter), it is face down — ignore it.
+
+STRICT RULES:
+1. ONLY report cards you can clearly and confidently see. If blurry or uncertain, leave it out.
+2. NEVER guess. If in doubt, leave it out.
+3. Do NOT count face-down cards (card backs). Only face-up cards with a visible value.
+4. Valid values only: "2" "3" "4" "5" "6" "7" "8" "9" "10" "J" "Q" "K" "A"
+5. ACE = letter A. FOUR = four pips. Do not confuse them.
+6. J, Q, K = write as "J", "Q", "K" — never as "10".
 
 Return ONLY this JSON, no markdown, no extra text:
-{"player_cards": ["10", "8"], "dealer_upcard": "A"}
+{"player_cards": ["A", "8"], "dealer_upcard": "K"}
 
 If you cannot confidently identify the cards, return:
 {"player_cards": [], "dealer_upcard": "?"}`;
