@@ -72,6 +72,18 @@
     }
     #no-camera .icon { font-size: 2.5rem; }
     .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+    .focus-ring {
+      position: absolute; width: 60px; height: 60px;
+      border: 2px solid var(--gold); border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none; opacity: 0;
+      animation: focuspop 0.8s ease-out forwards;
+    }
+    @keyframes focuspop {
+      0%   { opacity: 1; transform: translate(-50%,-50%) scale(1.4); }
+      50%  { opacity: 1; transform: translate(-50%,-50%) scale(1.0); }
+      100% { opacity: 0; transform: translate(-50%,-50%) scale(1.0); }
+    }
     .flash.go { animation: flashbang 0.25s ease-out forwards; }
     @keyframes flashbang { 0% { opacity: 0.8; } 100% { opacity: 0; } }
     .action-row {
@@ -344,7 +356,7 @@ const MOTION_W      = 80;   // tiny downscaled size for fast comparison
 const MOTION_H      = 60;
 const STILL_NEEDED  = 5;    // frames that must be still before triggering (~1s at 200ms)
 const DIFF_TRIGGER  = 15;   // pixel diff threshold to count as motion
-const COOLDOWN_MS   = 5000; // 5 seconds after analysis before watching again
+const COOLDOWN_MS   = 3000; // 3 seconds after analysis before watching again
 
 motionCanvas.width  = MOTION_W;
 motionCanvas.height = MOTION_H;
@@ -439,22 +451,28 @@ async function startCamera() {
       audio: false
     });
 
-    // Enable continuous autofocus if the device supports it
+    // Tap to focus
     const track = stream.getVideoTracks()[0];
-    const capabilities = track.getCapabilities();
-    const constraints = {};
-    if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
-      constraints.focusMode = 'continuous';
-    }
-    if (capabilities.exposureMode && capabilities.exposureMode.includes('continuous')) {
-      constraints.exposureMode = 'continuous';
-    }
-    if (capabilities.whiteBalanceMode && capabilities.whiteBalanceMode.includes('continuous')) {
-      constraints.whiteBalanceMode = 'continuous';
-    }
-    if (Object.keys(constraints).length > 0) {
-      await track.applyConstraints({ advanced: [constraints] });
-    }
+    video.addEventListener('click', async (e) => {
+      const capabilities = track.getCapabilities();
+      if (!capabilities.focusMode) return;
+
+      const rect = video.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top)  / rect.height;
+
+      // Show focus ring where user tapped
+      showFocusRing(e.clientX - rect.left, e.clientY - rect.top);
+
+      try {
+        if (capabilities.focusMode.includes('manual') && capabilities.focusDistance) {
+          await track.applyConstraints({ advanced: [{ focusMode: 'manual', pointsOfInterest: [{ x, y }] }] });
+          setTimeout(() => track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }), 2000);
+        } else if (capabilities.focusMode.includes('continuous')) {
+          await track.applyConstraints({ advanced: [{ focusMode: 'continuous', pointsOfInterest: [{ x, y }] }] });
+        }
+      } catch(e) { /* device doesn't support tap-to-focus */ }
+    });
     video.srcObject = stream;
   } catch {
     video.style.display = 'none';
@@ -464,6 +482,18 @@ async function startCamera() {
   }
 }
 startCamera();
+
+function showFocusRing(x, y) {
+  // Remove any existing ring
+  const old = document.querySelector('.focus-ring');
+  if (old) old.remove();
+  const ring = document.createElement('div');
+  ring.className = 'focus-ring';
+  ring.style.left = x + 'px';
+  ring.style.top  = y + 'px';
+  document.querySelector('.viewfinder-wrap').appendChild(ring);
+  setTimeout(() => ring.remove(), 900);
+}
 
 function captureFrame() {
   const canvas = document.getElementById('snap-canvas');
