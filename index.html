@@ -596,6 +596,15 @@ function showResult(r) {
     </div>
     <div class="result-action">${emoji} ${action}</div>
     <div class="result-reason">${r.reason}</div>`;
+
+  // Speak the action out loud
+  if ('speechSynthesis' in window) {
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(action.toLowerCase());
+    utter.rate   = 0.9;
+    utter.volume = 1.0;
+    speechSynthesis.speak(utter);
+  }
 }
 
 function showError(msg) {
